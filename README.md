@@ -1,6 +1,6 @@
 # vega.repl
 
-[![CircleCI](https://circleci.com/gh/zane/vega.repl.svg?style=svg)](https://circleci.com/gh/zane/vega.repl)
+[![CircleCI](https://circleci.com/gh/zane/vega.repl.svg?style=shield)](https://circleci.com/gh/zane/vega.repl)
 
 [Vega](https://vega.github.io/vega/) and [Vega-Lite](https://vega.github.io/vega-lite/) data visualization utilities meant to be used interactively at the REPL.
 

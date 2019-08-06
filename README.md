@@ -1,5 +1,7 @@
 # vega.repl
 
+[![CircleCI](https://circleci.com/gh/zane/vega.repl.svg?style=svg)](https://circleci.com/gh/zane/vega.repl)
+
 [Vega](https://vega.github.io/vega/) and [Vega-Lite](https://vega.github.io/vega-lite/) data visualization utilities meant to be used interactively at the REPL.
 
 ## Rationale
@@ -7,13 +9,6 @@
 [Vega](https://vega.github.io/vega/) is a visualization grammar, a declarative language for creating, saving, and sharing interactive visualization designs. [Vega-Lite](https://vega.github.io/vega-lite/) provides a higher-level grammar for visual analysis, comparable to [ggplot](https://ggplot2.tidyverse.org/) or [Tableau](https://www.tableau.com/), that generates complete Vega specifications.
 
 vega.repl aims to be the simplest possible way to go from Clojure data and a Vega or Vega-Lite spec to a rendered visualization. It is an alternative to larger, more complex libraries like [Oz](https://github.com/metasoarous/oz) and [Hanami](https://github.com/jsa-aerial/hanami).
-
-## Requirements
-
-vega.repl has only been tested on the following Clojure and Java versions, but it ought to work with newer versions as well. If you have evidence to the contrary, please [file an issue](https://github.com/zane/vega.repl/issues/new)!
-
-* Clojure `1.10.0`
-* Java `1.8` at `1.8.0_192`
 
 ## Installation
 

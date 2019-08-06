@@ -1,0 +1,32 @@
+# Clojure CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-clojure/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/clojure:openjdk-11-tools-deps-1.10.0.411
+
+    working_directory: ~/repo
+
+    environment:
+      JVM_OPTS: -Xmx3200m
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "deps.edn" }}
+            - deps- # used if checksum fails
+
+      - run: clojure -Spath
+
+      - save_cache:
+          paths:
+            - ~/.m2
+            - ~/.gitlibs
+          key: deps-{{ checksum "deps.edn" }}
+
+      - run: clojure -e "(require 'zane.vega.repl)"

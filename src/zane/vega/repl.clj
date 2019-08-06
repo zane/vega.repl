@@ -4,17 +4,47 @@
   (:import [javafx.application Platform]
            [javafx.beans.value ChangeListener]
            [javafx.concurrent Worker$State]
-           [javafx.embed.swing JFXPanel]
            [javafx.event EventHandler]
            [javafx.scene Scene]
            [javafx.scene.web WebEngine WebView]
            [javafx.stage Stage]
            [netscape.javascript JSObject])
   (:require [clojure.java.io :as io]
+            [clojure.reflect :as reflect]
             [cheshire.core :as cheshire]))
 
-(javafx.embed.swing.JFXPanel.)
-(Platform/setImplicitExit false) ; don't exit if last window is closed
+(defonce ^:private
+  ^{:doc "Atom. True if JavaFX has been initialized. False otherwise."}
+  initialized (atom false))
+
+(defmacro ^:private if-class [class-name then else]
+  `(if (try
+         (Class/forName ^String ~class-name)
+         (catch ClassNotFoundException _#))
+     ~then
+     ~else))
+
+(defn- start-javafx-thread!
+  []
+  ;; Try to start the JavaFX Application Thread one of two ways:
+  ;; 1. Call `javafx.application.Platform/startup` if it exists
+  ;; 2. Initialize a `javafx.embed.swing.JFXPanel` which starts the JavaFX
+  ;;    Application Thread as a side-effect.
+  (if (some #(= 'startup (:name %))
+            (:members (reflect/reflect Platform))) ; does `javafx.application.Platform/startup` exist?
+    @(delay (eval `(Platform/startup (fn []))))
+    (if-class "javafx.embed.swing.JFXPanel"
+      @(delay (eval `(javafx.embed.swing.JFXPanel.)))
+      (throw (ex-info "Can't start JavaFX!" {})))))
+
+(defn ensure-initialized!
+  []
+  (swap! initialized
+         (fn [initialized]
+           (when-not initialized
+             (Platform/setImplicitExit false) ; don't exit if last window is closed
+             (start-javafx-thread!)
+             true))))
 
 (defn- run-later*
   "Run `f` on the JavaFX Application Thread. Blocks until `f` returns. For more
@@ -106,9 +136,10 @@
    other windows."}
   *always-on-top* true)
 
-(defn vega-lite
+(defn vega
   "Renders the provided Vega-Lite spec into a new JavaFX `WebView` window."
   [spec]
+  (ensure-initialized!)
   (let [content (slurp (io/resource "index.html"))
         ^WebView web-view (doto (run-now (WebView.))
                             (load-now! content))

@@ -13,10 +13,6 @@
             [clojure.reflect :as reflect]
             [cheshire.core :as cheshire]))
 
-(defonce ^:private
-  ^{:doc "Atom. True if JavaFX has been initialized. False otherwise."}
-  initialized (atom false))
-
 (defmacro ^:private if-class [class-name then else]
   `(if (try
          (Class/forName ^String ~class-name)
@@ -37,14 +33,11 @@
       @(delay (eval `(javafx.embed.swing.JFXPanel.)))
       (throw (ex-info "Can't start JavaFX!" {})))))
 
-(defn ensure-initialized!
-  []
-  (swap! initialized
-         (fn [initialized]
-           (when-not initialized
-             (Platform/setImplicitExit false) ; don't exit if last window is closed
-             (start-javafx-thread!)
-             true))))
+(def ^:private ensure-initialized!
+  (let [initializer (delay (do (Platform/setImplicitExit false) ; don't exit if last window is closed
+                               (start-javafx-thread!)
+                               true))]
+    #(force initializer)))
 
 (defn- run-later*
   "Run `f` on the JavaFX Application Thread. Blocks until `f` returns. For more
